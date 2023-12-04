@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load partials %}
+ 
+{% block content %}
+
+<div class="flex flex-col items-center mx-10 md:mx-20">
+    <h1 class="prose-2xl mb-4"> Stranka s kartickami </h1>
+
+    <form class="mb-4" 
+        hx-post="{% url 'submit-form' %}"
+        hx-target='#karticky-table-body'
+        hx-swap="beforeend"
+        hx-on::after-request="this.reset()">
+        
+        <div class="form-control items-center">
+            <label>Name</label>
+            {% render_field form.name class="input input-bordered max-w-xs" %}
+        </div>
+
+        <div class="form-control items-center">
+            <label>Description</label>
+            {% render_field form.description class="input input-bordered max-w-xs" %}
+        </div>
+
+        <div class="form-control items-center">
+            <label>Is Active ?</label>
+            {% render_field form.is_active class="checkbox checkbox-success" %}
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-2">Submit</button>
+    </form>
+
+    <table class="table table-zebra table-lg">
+        <thead>
+            <tr>
+                <th>Meno</th>
+                <th>Vytvorene</th>
+                <th></th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="karticky-table-body">
+            {% for karticka in karticky %}
+                {% partialdef kartickaitem-partial inline=True %}
+                    <tr>
+                    <td>{{ karticka.name }}</td>
+                    <td>{{ karticka.created_at }}</td>
+                    <td id="more-info"></td>
+                    <td><button class="btn btn-xs btn-success"
+                            hx-post="{% url 'more-info' karticka.id %}"
+                            hx-target="#more-info">Viac info</button>
+                    <button class="btn btn-xs btn-error"
+                            hx-delete="{% url 'delete-card' karticka.id %}"
+                            hx-on:delete-card="this.closest('tr').remove()">Zmazat</button></td>
+                    </tr>
+                {% endpartialdef %}    
+            {% endfor %}
+        </tbody>
+    </table>
+</div> 
+{% endblock %}
